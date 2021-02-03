@@ -100,18 +100,22 @@ class MyWidget1(QWidget):
 
     def button_3(self):
         print("确认按钮触发")
+        if self.m_Loding:
+            self.m_Loding.hide()
         widget = QtWidgets.QWidget()
         reply = QMessageBox.information(widget, "提示框", "这是一个提示", QMessageBox.Ok | QMessageBox.Close, QMessageBox.Close)
         widget.close()
 
     def button_4(self):
         print("确认按钮触发")
+        if self.m_Loding:
+            self.m_Loding.show()
         widget = QtWidgets.QWidget()
         reply = QMessageBox.information(widget, "提示框", "这是一个提示")
         widget.close()
 
     def loding(self):
-        self.m_Loding = QLabel()
+        self.m_Loding = QLabel(self)
         self.m_Loding.setWindowFlags(QtCore.Qt.FramelessWindowHint)  # 无边框
         self.m_Loding.setAttribute(QtCore.Qt.WA_TranslucentBackground)  # 背景透明
         # 打开gif文件
@@ -123,7 +127,8 @@ class MyWidget1(QWidget):
         self.m_Loding.setMovie(movie)
         # 开始播放，对应的是movie.start()
         movie.start()
-        self.m_Loding.show()
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
