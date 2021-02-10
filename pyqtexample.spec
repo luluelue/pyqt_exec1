@@ -5,9 +5,9 @@ block_cipher = None
 
 a = Analysis(['example1.py'],
              pathex=['E:\\py_code\\pyqt_exec1'],
-             binaries=[],
+             binaries=[('bb.ico', '.'),('loding.gif', '.')],
              datas=[],
-             hiddenimports=[],
+             hiddenimports=['bb.ico'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

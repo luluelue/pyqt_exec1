@@ -18,7 +18,11 @@ $ProjectFileDir$
 '''
 
 # pyinstaller -F -i bb.ico example1.py -n pyqtexample --noconsole
-# pip install PySide2 -i http://pypi.douban.com/simple/ --trusted-host pypi.douban.com
+# pip install pyinstaller -i http://pypi.douban.com/simple/ --trusted-host pypi.douban.com
+# pyinstaller -F -i bb.ico example1.py -n pyqtexample --noconsole --hidden-import PySide2.QtXml
+# --hidden-import PySide2.QtXml  用来指定在exe文件中包含某些库，因为某些库使用 __import__ 动态导入，pyinstaller无法分析出依赖，故需手动指定。
+
+
 from PySide2 import QtCore, QtGui
 from PySide2.QtWidgets import QApplication, QMessageBox, QMainWindow, QPlainTextEdit, QPushButton, QLabel
 
@@ -41,7 +45,7 @@ class StatisticUI():
         button = QPushButton("统计", window)
         button.move(380, 80)
         button.clicked.connect(lambda: self.button1CB(window, textEdit))
-        # button.clicked.connect(self.loding)
+        button.clicked.connect(self.loding)
 
         window.show()
         app.exec_()

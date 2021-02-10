@@ -16,22 +16,22 @@ E:\py_code\pyqt\Scripts\pyuic5.exe $FileName$ -o $FileNameWithoutExtension$.py  
 $ProjectFileDir$
 '''
 
-
-
-# pyinstaller -F -i bb.ico example1.py -n pyqtexample --noconsole
+# pyinstaller -F -i bb.ico example1.py -n pyqtexample --noconsole --hidden-import bb.ico
 # pip install pyqt5 -i http://pypi.douban.com/simple/ --trusted-host pypi.douban.com
 # pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pyinstaller
+# 若生成了 *.spec 文件，则可直接 pyinstaller example.spec 文件来直接打包
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QThread, QMutex
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QLabel, QToolTip, QMessageBox, QWidget, QApplication
 from test1 import Ui_Form
-import sys
+import sys, os
 import time
 
-
 g_Lock1 = QMutex()  # 线程锁1
+
 
 # 界面对象
 class MyWidget1(QWidget):
@@ -42,7 +42,7 @@ class MyWidget1(QWidget):
         self.m_Loding = None  # loding界面
 
     def initUI(self):
-        self.setWindowIcon(QIcon('bb.ico'))  # 增加icon图标，如果没有图片可以没有这句
+        self.setWindowIcon(QIcon('{}/bb.ico'.format(self.base_path())))  # 增加icon图标，如果没有图片可以没有这句
         self.m_ui = Ui_Form()
         self.m_ui.setupUi(self)
         self.m_ui.m_ButtonTrue.clicked.connect(self.button_true)
@@ -77,12 +77,14 @@ class MyWidget1(QWidget):
         class thread_test(QThread):
             def __init__(self):
                 super().__init__()
+
             def run(self):
                 g_Lock1.lock()  # 加锁，防止执行多次
                 for i in range(20):
                     print(i)
                     time.sleep(0.5)  # 休眠
                 g_Lock1.unlock()
+
         t = thread_test()
         t.start()
 
@@ -111,7 +113,7 @@ class MyWidget1(QWidget):
         if self.m_Loding:
             self.m_Loding.show()
         widget = QtWidgets.QWidget()
-        reply = QMessageBox.information(widget, "提示框", "这是一个提示")
+        reply = QMessageBox.information(widget, "提示框", "系统运行资源路径为：{}   ".format(self.base_path()))
         widget.close()
 
     def loding(self):
@@ -119,7 +121,7 @@ class MyWidget1(QWidget):
         self.m_Loding.setWindowFlags(QtCore.Qt.FramelessWindowHint)  # 无边框
         self.m_Loding.setAttribute(QtCore.Qt.WA_TranslucentBackground)  # 背景透明
         # 打开gif文件
-        movie = QtGui.QMovie("loding.gif")
+        movie = QtGui.QMovie("{}/loding.gif".format(self.base_path()))
         # 设置cacheMode为CacheAll时表示gif无限循环，注意此时loopCount()返回-1
         movie.setCacheMode(QtGui.QMovie.CacheAll)
         # 播放速度
@@ -128,14 +130,18 @@ class MyWidget1(QWidget):
         # 开始播放，对应的是movie.start()
         movie.start()
 
+    # 解决资源路径的读取问题，因为win运行exe是先解压到临时文件夹再运行
+    def base_path(self, path=''):
+        if getattr(sys, 'frozen', None):
+            basedir = sys._MEIPASS
+        else:
+            basedir = os.path.dirname(__file__)
+        return os.path.join(basedir, path)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ui = MyWidget1()
     ui.loding()
+
     sys.exit(app.exec_())
-
-
-
-
